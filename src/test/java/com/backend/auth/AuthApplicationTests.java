@@ -1,10 +1,10 @@
-package com.backend.ljy;
+package com.backend.auth;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class LjyApplicationTests {
+class AuthApplicationTests {
 
 	@Test
 	void contextLoads() {

@@ -1,0 +1,118 @@
+version: "3.8"
+
+services:
+  mariadb:
+    image: mariadb:latest
+    container_name: mariadb
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: test1234
+      MYSQL_DATABASE: app_db  # 여기서 app_db로 변경
+      MYSQL_USER: ljy
+      MYSQL_PASSWORD: test1234!
+    ports:
+      - "3306:3306"
+    volumes:
+      - mariadb_data:/var/lib/mysql
+      - ./mariadb/init-scripts:/docker-entrypoint-initdb.d  # 초기화 스크립트 폴더 연결
+    networks:
+      - backend_network
+
+  redis:
+    image: redis:latest
+    container_name: redis
+    restart: always
+    ports:
+      - "6379:6379"
+    networks:
+      - backend_network
+
+  mongo:
+    image: mongo:latest
+    container_name: mongo
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: test1234
+      MONGO_INITDB_ROOT_PASSWORD: test1234!
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - backend_network
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:latest
+    container_name: zookeeper
+    restart: always
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - "2181:2181"
+    networks:
+      - backend_network
+
+  kafka:
+    image: confluentinc/cp-kafka:latest
+    container_name: kafka
+    restart: always
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_LOG_DIRS: /var/lib/kafka/data
+    ports:
+      - "9092:9092"
+    volumes:
+      - kafka_data:/var/lib/kafka/data
+    networks:
+      - backend_network
+
+  ksqldb:
+    image: confluentinc/ksqldb-server:latest
+    container_name: ksqldb
+    depends_on:
+      - kafka
+    environment:
+      KSQL_CONFIG_DIR: "/etc/ksql"
+      KSQL_BOOTSTRAP_SERVERS: "kafka:9092"
+    ports:
+      - "8088:8088"
+    networks:
+      - backend_network
+
+#  backend:
+#    build:
+#      context: ../  # backend 폴더를 기준으로 빌드
+#      dockerfile: Dockerfile
+#    container_name: spring-app
+#    restart: always
+#    depends_on:
+#      - mariadb
+#      - redis
+#      - mongo
+#      - kafka
+#    environment:
+#      SPRING_DATASOURCE_URL: jdbc:mariadb://mariadb:3306/app_db
+#      SPRING_DATASOURCE_USERNAME: ljy  # 변경된 사용자명
+#      SPRING_DATASOURCE_PASSWORD: test1234!
+#      SPRING_REDIS_HOST: redis
+#      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+#      SPRING_DATA_MONGODB_URI: mongodb://test1234:test1234!@mongo:27017/admin
+#    ports:
+#      - "8080:8080"
+#    networks:
+#      - backend_network
+
+networks:
+  backend_network:
+    driver: bridge
+
+volumes:
+  mariadb_data:
+  mongo_data:
+  kafka_data:

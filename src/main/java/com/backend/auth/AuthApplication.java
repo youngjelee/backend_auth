@@ -1,13 +1,13 @@
-package com.backend.ljy;
+package com.backend.auth;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class LjyApplication {
+public class AuthApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(LjyApplication.class, args);
+		SpringApplication.run(AuthApplication.class, args);
 	}
 
 }
