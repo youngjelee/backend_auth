@@ -1,6 +1,7 @@
 package com.backend.auth.api.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
@@ -10,13 +11,14 @@ import static com.backend.auth.config.common.constants.CommonVariables.REFRESH_T
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class RedisService {
 
     private final RedisTemplate<String, String> redisTemplate;
 
 
     public void saveRefreshToken(String key, String refreshToken) {
-        // key는 보통 사용자 ID나 username을 사용 (예: "refreshToken:{username}")
+        log.info("create refreshToken:{} ",key );
         redisTemplate.opsForValue().set("refreshToken:" + key, refreshToken, REFRESH_TOKEN_VALIDITY_SEC, TimeUnit.SECONDS);
     }
 
@@ -25,6 +27,7 @@ public class RedisService {
     }
 
     public void deleteRefreshToken(String key) {
+        log.info("delete key ============> refreshToken:{} ",key );
         redisTemplate.delete("refreshToken:" + key);
     }
 }

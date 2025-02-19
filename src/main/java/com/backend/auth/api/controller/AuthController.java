@@ -89,8 +89,8 @@ public class AuthController {
      * HttpOnly 쿠키인 access_token을 만료시켜 삭제합니다.
      */
     @PostMapping("/logout")
-    public ResponseEntity<?> logout(HttpServletResponse response) {
-        return authService.logout(response);
+    public ResponseEntity<?> logout( HttpServletRequest request , HttpServletResponse response) {
+        return authService.logout(request , response);
     }
 
 }

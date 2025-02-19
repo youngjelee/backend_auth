@@ -84,7 +84,7 @@ public class JwtTokenProvider {
         Date expiryDate = new Date(now.getTime() + CommonVariables.ACCESS_TOKEN_VALIDITY_MIL);
 
         return Jwts.builder()
-                   .setSubject(String.valueOf(user.getId()))
+                   .setSubject(String.valueOf(user.getUserid()))
                    .claim("nickname", user.getNickname())
                    .setIssuedAt(now)
                    .setExpiration(expiryDate)
@@ -100,7 +100,7 @@ public class JwtTokenProvider {
         Date expiryDate = new Date(now.getTime() + REFRESH_TOKEN_VALIDITY_SEC);
 
         return Jwts.builder()
-                   .setSubject(String.valueOf(user.getId()))
+                   .setSubject(String.valueOf(user.getUserid()))
                    .claim("nickname", user.getNickname())
                    .setIssuedAt(now)
                    .setExpiration(expiryDate)

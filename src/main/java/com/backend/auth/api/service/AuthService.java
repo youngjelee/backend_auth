@@ -11,6 +11,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -20,6 +21,7 @@ public class AuthService {
 
     private final JwtTokenProvider jwtTokenProvider;
     private final CookieService cookieService;
+    private final RedisService redisService;
 
     public ResponseEntity<?> getProfileByAccessToken(HttpServletRequest request) {
 
@@ -47,11 +49,21 @@ public class AuthService {
 
 
 
-    public ResponseEntity<?> logout(HttpServletResponse response) {
+    public ResponseEntity<?> logout(HttpServletRequest request , HttpServletResponse response) {
+
+        String accessToken = cookieService.getAccessTokenParseServletRequest(request);
+
+        if( accessToken != null && jwtTokenProvider.validateToken(accessToken) ) {
+            String userid = jwtTokenProvider.getUserid(accessToken);
+            redisService.deleteRefreshToken(userid);
+        }
 
         Cookie cookie = cookieService.makeAccessTokenExpire();
-        //redis 리프레시 토큰 삭제
         response.addCookie(cookie);
+
+        //redis 리프레시 토큰 삭제
+
+
         return ResponseUtils.success();
     }
 
