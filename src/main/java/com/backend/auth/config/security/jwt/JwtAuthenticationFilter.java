@@ -1,4 +1,4 @@
-package com.backend.auth.config.jwt;
+package com.backend.auth.config.security.jwt;
 
 import com.backend.auth.config.security.service.CustomUserDetailsService;
 import jakarta.servlet.FilterChain;
@@ -35,8 +35,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         // 토큰이 유효하면 SecurityContext 에 인증 정보 세팅
         if (token != null && jwtTokenProvider.validateToken(token)) {
-            String username = jwtTokenProvider.getUsername(token);
-            UserDetails userDetails = customUserDetailsService.loadUserByUsername(username);
+            String userid = jwtTokenProvider.getUserid(token);
+            UserDetails userDetails = customUserDetailsService.loadUserByUsername(userid);
 
             // 스프링 시큐리티가 인식할 수 있는 Authentication 객체 생성
             UsernamePasswordAuthenticationToken authentication =

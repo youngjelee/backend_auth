@@ -1,7 +1,9 @@
-package com.backend.auth.config.jwt;
+package com.backend.auth.config.security.jwt;
 
 
+import com.backend.auth.api.entity.User;
 import com.backend.auth.api.entity.enums.UserRole;
+import com.backend.auth.config.common.constants.CommonVariables;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
@@ -13,14 +15,14 @@ import jakarta.annotation.PostConstruct;
 import java.util.Base64;
 import java.util.Date;
 
+import static com.backend.auth.config.common.constants.CommonVariables.REFRESH_TOKEN_VALIDITY_SEC;
+
 @Component
 public class JwtTokenProvider {
 
     @Value("${spring.jwt.secret}")
     private String secretKey;  // application.yml에서 설정한 값
 
-    // 토큰 유효 시간 (예: 1시간)
-    private long validityInMilliseconds = 60 * 60  * 1000;
 
     @PostConstruct
     protected void init() {
@@ -36,7 +38,7 @@ public class JwtTokenProvider {
         claims.put("role", role.getValue());
 
         Date now = new Date();
-        Date validity = new Date(now.getTime() + validityInMilliseconds);
+        Date validity = new Date(now.getTime() + CommonVariables.ACCESS_TOKEN_VALIDITY_MIL);
 
         return Jwts.builder()
                 .setClaims(claims)
@@ -64,9 +66,9 @@ public class JwtTokenProvider {
     }
 
     /**
-     * 토큰에서 사용자 이름 추출
+     * 토큰에서 사용자 아이디 추출
      */
-    public String getUsername(String token) {
+    public String getUserid(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(Keys.hmacShaKeyFor(secretKey.getBytes()))
                 .build()
@@ -76,22 +78,14 @@ public class JwtTokenProvider {
     }
 
 
-       /**
-     * Authentication 객체로부터 사용자 정보를 추출해 JWT 토큰을 생성합니다.
-     */
-    public String createToken(Authentication authentication) {
-        String username;
-        if (authentication.getPrincipal() instanceof UserDetails) {
-            username = ((UserDetails) authentication.getPrincipal()).getUsername();
-        } else {
-            username = authentication.getPrincipal().toString();
-        }
+    public String createToken(User user) {
 
         Date now = new Date();
-        Date expiryDate = new Date(now.getTime() + validityInMilliseconds);
+        Date expiryDate = new Date(now.getTime() + CommonVariables.ACCESS_TOKEN_VALIDITY_MIL);
 
         return Jwts.builder()
-                   .setSubject(username)
+                   .setSubject(String.valueOf(user.getId()))
+                   .claim("nickname", user.getNickname())
                    .setIssuedAt(now)
                    .setExpiration(expiryDate)
                    .signWith(Keys.hmacShaKeyFor(secretKey.getBytes()), SignatureAlgorithm.HS256)
@@ -99,30 +93,30 @@ public class JwtTokenProvider {
     }
 
 
-      /**
-     * (선택) 리프레시 토큰 생성 예제.
-     * Access Token보다 유효기간을 길게 설정하는 것이 일반적입니다.
-     */
-    public String createRefreshToken(Authentication authentication) {
-        String username;
-        if (authentication.getPrincipal() instanceof UserDetails) {
-            username = ((UserDetails) authentication.getPrincipal()).getUsername();
-        } else {
-            username = authentication.getPrincipal().toString();
-        }
+    public String createRefreshToken(User user ) {
 
         Date now = new Date();
         // 리프레시 토큰 유효기간을 24시간으로 설정 (예시)
-        Date expiryDate = new Date(now.getTime() + 60*60*24*1000);
+        Date expiryDate = new Date(now.getTime() + REFRESH_TOKEN_VALIDITY_SEC);
 
         return Jwts.builder()
-                   .setSubject(username)
+                   .setSubject(String.valueOf(user.getId()))
+                   .claim("nickname", user.getNickname())
                    .setIssuedAt(now)
                    .setExpiration(expiryDate)
                    .signWith(Keys.hmacShaKeyFor(secretKey.getBytes()), SignatureAlgorithm.HS256)
                    .compact();
     }
 
-
+    /**
+     * 토큰의 Claims 추출 (추가된 메서드)
+     */
+    public Claims getClaims(String token) {
+        return Jwts.parserBuilder()
+                   .setSigningKey(Keys.hmacShaKeyFor(secretKey.getBytes()))
+                   .build()
+                   .parseClaimsJws(token)
+                   .getBody();
+    }
 
 }

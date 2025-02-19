@@ -6,17 +6,18 @@ import org.springframework.stereotype.Service;
 
 import java.util.concurrent.TimeUnit;
 
+import static com.backend.auth.config.common.constants.CommonVariables.REFRESH_TOKEN_VALIDITY_SEC;
+
 @Service
 @RequiredArgsConstructor
-public class RefreshTokenService {
+public class RedisService {
 
     private final RedisTemplate<String, String> redisTemplate;
-    // Refresh Token 유효기간 (예: 24시간 = 86400초)
-    private final long refreshTokenValiditySeconds = 86400L;
+
 
     public void saveRefreshToken(String key, String refreshToken) {
         // key는 보통 사용자 ID나 username을 사용 (예: "refreshToken:{username}")
-        redisTemplate.opsForValue().set("refreshToken:" + key, refreshToken, refreshTokenValiditySeconds, TimeUnit.SECONDS);
+        redisTemplate.opsForValue().set("refreshToken:" + key, refreshToken, REFRESH_TOKEN_VALIDITY_SEC, TimeUnit.SECONDS);
     }
 
     public String getRefreshToken(String key) {

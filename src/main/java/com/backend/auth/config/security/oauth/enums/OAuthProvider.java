@@ -8,6 +8,7 @@ import com.backend.auth.config.security.oauth.service.impl.KakaoOAuthAttributesC
 import com.backend.auth.config.security.oauth.service.impl.NaverOAuthAttributesConverter;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 
@@ -45,13 +46,14 @@ public enum OAuthProvider {
         this.converterSupplier = converterSupplier;
     }
 
-    public OAuthAttributes createAttributes(OAuth2UserRequest userRequest, OAuth2User oAuth2User) {
-        return converterSupplier.get().convert(userRequest, oAuth2User);
+    public OAuthAttributes createAttributes(OAuth2AuthenticationToken token ) {
+        return converterSupplier.get().convert(token);
     }
 
     public static OAuthProvider getByRegistrationId(String registrationId) {
         if (registrationId == null) {
-            return null;
+            //TODO :: exception 추후
+            throw new RuntimeException("미지원 중인 플랫폼입니다. ");
         }
         return lookup.get(registrationId.toLowerCase());
     }

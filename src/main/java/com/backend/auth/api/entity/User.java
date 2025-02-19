@@ -7,6 +7,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.Arrays;
 import java.util.List;
 
 @Entity
@@ -22,9 +23,9 @@ public class User {
     private Long id;
 
     @Column(nullable = false, unique = true)
-    private String username;
+    private String userid;
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false )
     private String nickname;
 
     private String password;
@@ -48,13 +49,17 @@ public class User {
 
 
 
-
-
     public User(String username, String nickname ,  String password, UserRole role) {
-        this.username = username;
         this.nickname = nickname;
         this.password = password;
         this.role = role;
+    }
+
+    public void loadUserProfileAndOauthAccount(UserProfile userProfile , OAuthAccount oAuthAccount) {
+        this.profile = userProfile;
+        if( oAuthAccount != null ) {
+            oauthAccounts = List.of(oAuthAccount);
+        }
     }
 
 }

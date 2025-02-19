@@ -20,13 +20,13 @@ public class CustomUserDetailsService implements UserDetailsService {
     }
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
+    public UserDetails loadUserByUsername(String userid) throws UsernameNotFoundException {
+        User user = userRepository.findByUserid(userid)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + userid));
 
         // Spring Security가 사용 가능한 형태(UserDetails)로 변환
         return new org.springframework.security.core.userdetails.User(
-                user.getUsername(),
+                user.getNickname(),
                 user.getPassword(),
                 Collections.singletonList(new SimpleGrantedAuthority(user.getRole().getValue()))
         );

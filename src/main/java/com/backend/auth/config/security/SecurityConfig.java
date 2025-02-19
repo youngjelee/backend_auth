@@ -1,11 +1,10 @@
 package com.backend.auth.config.security;
 
-import com.backend.auth.config.jwt.JwtAuthenticationFilter;
-import com.backend.auth.config.jwt.JwtTokenProvider;
-import com.backend.auth.config.security.service.CustomOAuth2UserService;
-import com.backend.auth.config.security.service.CustomOidcUserService;
+import com.backend.auth.config.security.handler.OAuthLoginFailureHandler;
+import com.backend.auth.config.security.handler.OAuthLoginSuccessHandler;
+import com.backend.auth.config.security.jwt.JwtAuthenticationFilter;
+import com.backend.auth.config.security.jwt.JwtTokenProvider;
 import com.backend.auth.config.security.service.CustomUserDetailsService;
-import com.backend.auth.api.service.RefreshTokenService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
@@ -16,7 +15,6 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
@@ -25,11 +23,11 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Slf4j
 public class SecurityConfig {
 
+    private final OAuthLoginSuccessHandler oAuthLoginSuccessHandler;
+    private final OAuthLoginFailureHandler oAuthLoginFailureHandler;
+
     private final CustomUserDetailsService customUserDetailsService;
     private final JwtTokenProvider jwtTokenProvider;
-    private final CustomOAuth2UserService customOAuth2UserService;
-    private final CustomOidcUserService customOidcUserService;
-    private final RefreshTokenService refreshTokenService;
 
     @Bean
     public BCryptPasswordEncoder passwordEncoder() {
@@ -70,26 +68,8 @@ public class SecurityConfig {
                 )
                 // OAuth2 로그인 설정
                 .oauth2Login(oauth2 -> oauth2
-                        // Google 같은 oidc 케이스는
-                        .userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService))
-                        .userInfoEndpoint(userInfo-> userInfo.oidcUserService(customOidcUserService))
-                        .successHandler((request, response, authentication) -> {
-
-                            //TODO : 성공시 핸들러 추후 처리 예정
-//                            String accessToken = jwtTokenProvider.createToken(authentication);
-//
-//                            String refreshToken = jwtTokenProvider.createRefreshToken(authentication);
-//
-//                            String username = ((OAuth2User) authentication.getPrincipal()).getAttribute("email");
-//
-//
-//                            refreshTokenService.saveRefreshToken(username, refreshToken);
-//
-//                            // 클라이언트에 토큰 전달 (헤더나 JSON 응답으로 전달)
-//                            response.addHeader("Authorization", "Bearer " + accessToken);
-//                            response.addHeader("Refresh-Token", refreshToken);
-
-                        })
+                        .successHandler( oAuthLoginSuccessHandler )
+                        .failureHandler( oAuthLoginFailureHandler)
                 )
                 // JWT 필터를 UsernamePasswordAuthenticationFilter 앞에 추가
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);

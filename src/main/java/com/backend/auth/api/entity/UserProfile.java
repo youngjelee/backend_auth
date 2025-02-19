@@ -27,12 +27,10 @@ public class UserProfile extends BaseTimeEntity {
     @Column(nullable = false)
     private String fullName;
 
-    // 이메일 (회원 식별 및 연락을 위해 unique 제약)
-    @Column(nullable = false, unique = true)
+    // 이메일
     private String email;
 
     // 전화번호 (선택 사항, unique)
-    @Column(unique = true)
     private String phone;
 
     // 생년월일
