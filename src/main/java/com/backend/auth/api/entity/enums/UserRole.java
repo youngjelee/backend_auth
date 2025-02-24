@@ -1,5 +1,8 @@
 package com.backend.auth.api.entity.enums;
 
+import lombok.Getter;
+
+@Getter
 public enum UserRole {
     ROLE_ADMIN("ADMIN"),
     ROLE_USER("USER");
@@ -10,7 +13,5 @@ public enum UserRole {
         this.value = value;
     }
 
-    public String getValue() {
-        return value;
-    }
+
 }

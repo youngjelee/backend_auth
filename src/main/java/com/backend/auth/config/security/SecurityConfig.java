@@ -2,6 +2,7 @@ package com.backend.auth.config.security;
 
 import com.backend.auth.config.security.handler.OAuthLoginFailureHandler;
 import com.backend.auth.config.security.handler.OAuthLoginSuccessHandler;
+import com.backend.auth.config.security.handler.OAuthLoginSuccessHandler_V2;
 import com.backend.auth.config.security.jwt.JwtAuthenticationFilter;
 import com.backend.auth.config.security.jwt.JwtTokenProvider;
 import com.backend.auth.config.security.service.CustomUserDetailsService;
@@ -17,13 +18,14 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.stereotype.Service;
 
 @Configuration
 @RequiredArgsConstructor
 @Slf4j
 public class SecurityConfig {
 
-    private final OAuthLoginSuccessHandler oAuthLoginSuccessHandler;
+    private final OAuthLoginSuccessHandler_V2 oAuthLoginSuccessHandler;
     private final OAuthLoginFailureHandler oAuthLoginFailureHandler;
 
     private final CustomUserDetailsService customUserDetailsService;
@@ -68,7 +70,7 @@ public class SecurityConfig {
                 )
                 // OAuth2 로그인 설정
                 .oauth2Login(oauth2 -> oauth2
-                        .successHandler( oAuthLoginSuccessHandler )
+                        .successHandler(oAuthLoginSuccessHandler)
                         .failureHandler( oAuthLoginFailureHandler)
                 )
                 // JWT 필터를 UsernamePasswordAuthenticationFilter 앞에 추가

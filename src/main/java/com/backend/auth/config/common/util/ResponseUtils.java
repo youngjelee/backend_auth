@@ -2,9 +2,6 @@ package com.backend.auth.config.common.util;
 
 import com.backend.auth.config.common.base.ApiResponse;
 import com.backend.auth.config.exception.ResponseCode;
-
-import com.backend.auth.config.common.base.ApiResponse;
-import com.backend.auth.config.exception.ResponseCode;
 import org.springframework.http.ResponseEntity;
 
 public class ResponseUtils {

@@ -12,6 +12,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import jakarta.annotation.PostConstruct;
+
 import java.util.Base64;
 import java.util.Date;
 
@@ -49,7 +50,6 @@ public class JwtTokenProvider {
     }
 
 
-
     /**
      * 토큰 유효성 검증
      */
@@ -84,28 +84,28 @@ public class JwtTokenProvider {
         Date expiryDate = new Date(now.getTime() + CommonVariables.ACCESS_TOKEN_VALIDITY_MIL);
 
         return Jwts.builder()
-                   .setSubject(String.valueOf(user.getUserid()))
-                   .claim("nickname", user.getNickname())
-                   .setIssuedAt(now)
-                   .setExpiration(expiryDate)
-                   .signWith(Keys.hmacShaKeyFor(secretKey.getBytes()), SignatureAlgorithm.HS256)
-                   .compact();
+                .setSubject(String.valueOf(user.getUserid()))
+                .claim("nickname", user.getNickname())
+                .claim("roles", user.getRole())
+                .setIssuedAt(now)
+                .setExpiration(expiryDate)
+                .signWith(Keys.hmacShaKeyFor(secretKey.getBytes()), SignatureAlgorithm.HS256)
+                .compact();
     }
 
 
-    public String createRefreshToken(User user ) {
+    public String createRefreshToken(User user) {
 
         Date now = new Date();
         // 리프레시 토큰 유효기간을 24시간으로 설정 (예시)
         Date expiryDate = new Date(now.getTime() + REFRESH_TOKEN_VALIDITY_SEC);
 
         return Jwts.builder()
-                   .setSubject(String.valueOf(user.getUserid()))
-                   .claim("nickname", user.getNickname())
-                   .setIssuedAt(now)
-                   .setExpiration(expiryDate)
-                   .signWith(Keys.hmacShaKeyFor(secretKey.getBytes()), SignatureAlgorithm.HS256)
-                   .compact();
+                .setSubject(String.valueOf(user.getUserid()))
+                .setIssuedAt(now)
+                .setExpiration(expiryDate)
+                .signWith(Keys.hmacShaKeyFor(secretKey.getBytes()), SignatureAlgorithm.HS256)
+                .compact();
     }
 
     /**
@@ -113,10 +113,10 @@ public class JwtTokenProvider {
      */
     public Claims getClaims(String token) {
         return Jwts.parserBuilder()
-                   .setSigningKey(Keys.hmacShaKeyFor(secretKey.getBytes()))
-                   .build()
-                   .parseClaimsJws(token)
-                   .getBody();
+                .setSigningKey(Keys.hmacShaKeyFor(secretKey.getBytes()))
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
     }
 
 }

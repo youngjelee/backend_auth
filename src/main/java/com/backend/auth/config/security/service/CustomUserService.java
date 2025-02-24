@@ -10,6 +10,7 @@ import com.backend.auth.config.security.oauth.OAuthAttributes;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -42,7 +43,7 @@ public class CustomUserService {
                 .userid(attributes.getProvider() +"_"+attributes.getProviderUserId()) // NAVER_providerUserId 로 id 설정
                 .nickname(nickname)
                 .password("") // OAUTH/ OIDC  비밀번호는 우선 빈값으로 사용
-                .role(UserRole.ROLE_USER)
+                .role(List.of(UserRole.ROLE_USER))
                 .status("ACTIVE")
                 .build();
         // profile

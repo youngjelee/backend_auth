@@ -1,4 +1,4 @@
-package com.backend.auth.config.security.cors;
+package com.backend.auth.config.cors;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;

@@ -1,4 +1,4 @@
-package com.backend.auth.config.security.cors;
+package com.backend.auth.config.cors;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;

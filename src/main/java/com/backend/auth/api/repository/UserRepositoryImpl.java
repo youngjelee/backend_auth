@@ -22,7 +22,8 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
     public Optional<User> getUserByProviderAndProviderUserId(OAuthProvider provider, String providerUserId) {
         User resultUser = queryFactory
                 .selectFrom(user)
-                .join(user.oauthAccounts, oAuthAccount)
+                .join(user.oauthAccounts, oAuthAccount).fetchJoin()
+                .join(user.role).fetchJoin()
                 .where(
                         oAuthAccount.provider.eq(provider)
                         .and(oAuthAccount.providerUserId.eq(providerUserId))

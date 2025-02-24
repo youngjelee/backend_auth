@@ -32,8 +32,8 @@ public class OAuthAccount extends BaseTimeEntity {
 
     // 토큰 관련 정보는 Redis 등 별도의 스토리지에서 관리
 
-    // User와 다대일 관계 (한 사용자가 여러 OAuth 계정을 가질 수 있음)
-    @ManyToOne(fetch = FetchType.LAZY)
+    @OneToOne
+    @MapsId
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 }

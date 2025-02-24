@@ -15,6 +15,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class AuthService {
@@ -25,35 +27,37 @@ public class AuthService {
 
     public ResponseEntity<?> getProfileByAccessToken(HttpServletRequest request) {
 
-        String accessToken = cookieService.getAccessTokenParseServletRequest(request);
+        // Authorization 헤더에서 "Bearer {token}" 형식으로 토큰 추출
+        String authHeader = request.getHeader("Authorization");
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            throw new AuthException(ResponseCode.UNAUTHORIZED);
+        }
+        String accessToken = authHeader.substring(7);
 
-        if (accessToken == null) throw new AuthException(ResponseCode.UNAUTHORIZED);
-
-        if (!jwtTokenProvider.validateToken(accessToken)) throw new AuthException(ResponseCode.AUTH_TOKEN_EXPIRED);
+        if (!jwtTokenProvider.validateToken(accessToken))
+            throw new AuthException(ResponseCode.AUTH_TOKEN_EXPIRED);
 
         // 토큰에서 사용자 정보 추출
         String userid = jwtTokenProvider.getUserid(accessToken);
         Claims claims = jwtTokenProvider.getClaims(accessToken);
         String nickname = claims.get("nickname", String.class);
+        List<String> roles = claims.get("roles", List.class);
 
-        // email, profileImage는 토큰에 포함되지 않았다면 기본값으로 처리 (필요하면 DB 조회 등을 통해 채울 수 있음)
+        // 토큰에 포함되지 않은 값은 기본값 처리 (필요 시 DB 조회 등)
         UserProfileDto dto = new UserProfileDto();
         dto.setUserid(userid);
         dto.setNickname(nickname);
+        dto.setRoles(roles);
 
-        // 추가적인 요소는 db 실시간 조회를 통해 직접 체크예정
-        // dto.setEmail("");          // 토큰에 없으므로 빈 문자열 또는 null
-        // dto.setProfileImage("");   // 토큰에 없으므로 빈 문자열 또는 null
         return ResponseUtils.success(dto);
     }
 
 
-
-    public ResponseEntity<?> logout(HttpServletRequest request , HttpServletResponse response) {
+    public ResponseEntity<?> logout(HttpServletRequest request, HttpServletResponse response) {
 
         String accessToken = cookieService.getAccessTokenParseServletRequest(request);
 
-        if( accessToken != null && jwtTokenProvider.validateToken(accessToken) ) {
+        if (accessToken != null && jwtTokenProvider.validateToken(accessToken)) {
             String userid = jwtTokenProvider.getUserid(accessToken);
             redisService.deleteRefreshToken(userid);
         }
