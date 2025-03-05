@@ -1,8 +1,8 @@
 package com.backend.ljy.payment.entity;
 
+import com.backend.ljy.order.entity.Order;
 import jakarta.persistence.*;
 import lombok.*;
-import com.backend.ljy.order.entity.;
 
 @Entity
 @Table(name = "payments")
